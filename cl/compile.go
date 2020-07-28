@@ -289,6 +289,10 @@ func loadTypes(ctx *blockCtx, d *ast.GenDecl) {
 }
 
 func loadType(ctx *blockCtx, spec *ast.TypeSpec) {
+	if ctx.exists(spec.Name.Name) {
+		log.Panicln("loadType failed: symbol exists -", spec.Name.Name)
+	}
+	ctx.syms[spec.Name.Name] = toType(ctx, spec.Type)
 }
 
 func loadConsts(ctx *blockCtx, d *ast.GenDecl) {

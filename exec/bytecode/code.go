@@ -116,6 +116,7 @@ const (
 	opWrapIfErr     = 43 // reserved(2) offset(24)
 	opDeferOp       = 44 // reserved(2) offset(24)
 	opGoroutineOp   = 45 // reserved(2) offset(24)
+	opPushStruct    = 46
 )
 
 const (
@@ -215,6 +216,7 @@ type Code struct {
 	fors       []*ForPhrase
 	types      []reflect.Type
 	structs    []StructInfo
+	valStructs []reflect.Value
 	errWraps   []errWrap
 	varManager
 }

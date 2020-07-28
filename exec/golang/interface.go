@@ -427,6 +427,12 @@ func (p *iBuilder) StartStmt(stmt interface{}) interface{} {
 	return ((*Builder)(p)).StartStmt(stmt)
 }
 
+// NewStruct instr
+func (p *iBuilder) PushStruct(typ reflect.Type, fields []reflect.StructField) exec.Builder {
+	((*Builder)(p)).PushStruct(typ, fields)
+	return p
+}
+
 // EndStmt receives a `EndStmt` event.
 func (p *iBuilder) EndStmt(stmt, start interface{}) exec.Builder {
 	((*Builder)(p)).EndStmt(stmt, start)

@@ -313,6 +313,9 @@ type Builder interface {
 	// Make instr
 	Make(typ reflect.Type, arity int) Builder
 
+	// PushStruct instr
+	PushStruct(typ reflect.Type, fields []reflect.StructField) Builder
+
 	// MapIndex instr
 	MapIndex() Builder
 

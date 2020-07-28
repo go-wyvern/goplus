@@ -305,6 +305,12 @@ func (p *iBuilder) AddrVar(v exec.Var) exec.Builder {
 	return p
 }
 
+// PushStruct instr
+func (p *iBuilder) PushStruct(typ reflect.Type, fields []reflect.StructField) exec.Builder {
+	((*Builder)(p)).PushStruct(typ, fields)
+	return p
+}
+
 // LoadGoVar instr
 func (p *iBuilder) LoadGoVar(addr GoVarAddr) exec.Builder {
 	((*Builder)(p)).LoadGoVar(addr)

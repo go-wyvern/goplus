@@ -296,6 +296,27 @@ func compileCompositeLit(ctx *blockCtx, v *ast.CompositeLit) func() {
 			}
 			ctx.out.MakeMap(typMap, len(v.Elts))
 		}
+	case reflect.Struct:
+		t := typ.(reflect.Type)
+		ctx.infer.Push(&goValue{t: typ.(reflect.Type)})
+		return func() {
+			v := reflect.New(t)
+			for _, elt := range v.Elts {
+				switch e := elt.(type) {
+				case *ast.KeyValueExpr:
+					checkType(exec.TyString, newConstVal(e.Key.(*ast.Ident).Name, astutil.ConstBoundString), ctx.out)
+					field, ok := t.FieldByName(e.Key.(*ast.Ident).Name)
+					if ok {
+						compileExpr(ctx, e.Value)()
+						checkType(field.Type, ctx.infer.Pop(), ctx.out)
+					}
+				default:
+					log.Panicln("compileCompositeLit: map requires key-value expr.")
+				}
+			}
+
+			ctx.out.PushStruct(t, len(v.Elts))
+		}
 	default:
 		log.Panicln("compileCompositeLit failed: unknown -", reflect.TypeOf(typ))
 		return nil

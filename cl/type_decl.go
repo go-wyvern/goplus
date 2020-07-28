@@ -214,7 +214,11 @@ func toArgTypes(ctx *blockCtx, fields *ast.FieldList) ([]reflect.Type, []string,
 }
 
 func toStructType(ctx *blockCtx, v *ast.StructType) iType {
-	panic("toStructType: todo")
+	var fields []reflect.StructField
+	for _, field := range v.Fields.List {
+		fields = append(fields, toStructField(ctx, field)...)
+	}
+	return reflect.StructOf(fields)
 }
 
 func toInterfaceType(ctx *blockCtx, v *ast.InterfaceType) iType {
@@ -232,6 +236,11 @@ func toExternalType(ctx *blockCtx, v *ast.SelectorExpr) iType {
 func toIdentType(ctx *blockCtx, ident string) iType {
 	if typ, ok := ctx.builtin.FindType(ident); ok {
 		return typ
+	}
+	if sym, ok := ctx.find(ident); ok {
+		if typ, ok := sym.(iType); ok {
+			return typ
+		}
 	}
 	log.Panicln("toIdentType failed: unknown ident -", ident)
 	return nil
@@ -279,6 +288,38 @@ func toInt(ctx *blockCtx, e ast.Expr) int {
 		log.Panicln("toInt: constant expr isn't an integer.")
 	}
 	return int(iv)
+}
+
+func toStructField(ctx *blockCtx, field *ast.Field) []reflect.StructField {
+	var fields []reflect.StructField
+	if field.Names == nil {
+		fields = append(fields, buildField(ctx, field, true, ""))
+	} else {
+		for _, name := range field.Names {
+			fields = append(fields, buildField(ctx, field, false, name.Name))
+		}
+	}
+	return fields
+}
+
+func buildField(ctx *blockCtx, field *ast.Field, anonymous bool, fieldName string) reflect.StructField {
+	var f = reflect.StructField{}
+	if !anonymous {
+		f = reflect.StructField{
+			PkgPath: ctx.pkg.Name,
+		}
+	}
+	f = reflect.StructField{
+		Name:      fieldName,
+		PkgPath:   ctx.pkg.Name,
+		Type:      toType(ctx, field.Type).(reflect.Type),
+		Anonymous: anonymous,
+	}
+	if field.Tag != nil {
+		tag, _ := strconv.Unquote(field.Tag.Value)
+		f.Tag = reflect.StructTag(tag)
+	}
+	return f
 }
 
 // -----------------------------------------------------------------------------

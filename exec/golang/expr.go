@@ -570,6 +570,11 @@ func (p *Builder) Zero(typ reflect.Type) *Builder {
 	return p
 }
 
+func (p *Builder) PushStruct(typ reflect.Type, fields []reflect.StructField) *Builder {
+	log.Panicln("todo")
+	return p
+}
+
 // Zero instr
 func Zero(p *Builder, typ reflect.Type) ast.Expr {
 	kind := typ.Kind()

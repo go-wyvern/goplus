@@ -313,6 +313,11 @@ func execZero(i Instr, p *Context) {
 	p.Push(reflect.Zero(typ).Interface())
 }
 
+func execPushStruct(i Instr, p *Context) {
+	v := p.code.valStructs[i&bitsOperand]
+	p.Push(v)
+}
+
 // ToValues converts []interface{} into []reflect.Value.
 func ToValues(args []interface{}) []reflect.Value {
 	ret := make([]reflect.Value, len(args))
@@ -489,6 +494,14 @@ func (p *Builder) SetIndex(idx int) *Builder {
 		idx = -1
 	}
 	i := (opIndex<<bitsOpShift | setIndexFlag) | uint32(idx&setIndexOperand)
+	p.code.data = append(p.code.data, i)
+	return p
+}
+
+// PushStruct instr
+func (p *Builder) PushStruct(typ reflect.Type, fields []reflect.StructField) *Builder {
+	i := (opPushStruct << bitsOpShift) | uint32(len(p.code.valStructs))
+	p.code.valStructs = append(p.code.valStructs, StructInfo{Fields: fields, typ: typ})
 	p.code.data = append(p.code.data, i)
 	return p
 }

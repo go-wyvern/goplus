@@ -17,6 +17,7 @@
 package bytecode
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/goplus/gop/exec.spec"
@@ -174,6 +175,7 @@ func (ctx *Context) Exec(ip, ipEnd int) {
 			}
 			lastInstr, start = i, time.Now()
 		}
+		fmt.Println(instrInfos[i>>bitsOpShift], ctx.data)
 		switch i >> bitsOpShift {
 		case opPushInt:
 			const mask = uint32(bitsOpIntOperand >> 1)
@@ -277,6 +279,7 @@ var _execTable = [...]func(i Instr, p *Context){
 	opErrWrap:       execErrWrap,
 	opWrapIfErr:     execWrapIfErr,
 	opDeferOp:       execDeferOp,
+	opPushStruct:    execPushStruct,
 }
 
 var execTable []func(i Instr, p *Context)
